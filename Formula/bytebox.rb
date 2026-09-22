@@ -1,54 +1,25 @@
 class Bytebox < Formula
   desc "Amstrad CPC 6128 emulator"
-  homepage "https://github.com/nicolasbauw/amstrad_cpc"
-  url "https://github.com/nicolasbauw/amstrad_cpc/archive/refs/tags/2.1.0.tar.gz"
-  sha256 "d79c930cf4bd1f7658d738a385aef07c666c225441808ca28e1da1fb64b16f6b"
+  # amstrad_cpc (github.com/nicolasbauw/amstrad_cpc) est un dépôt privé
+  # depuis 2026-09 : un lien vers lui ne mènerait nulle part pour qui
+  # installe via ce tap. La page officielle, pas encore publiée à ce jour.
+  homepage "https://theorangenerd.ovh/#bb"
+  # Binaire déjà compilé par la GitHub Action d'amstrad_cpc (job "macos"),
+  # hébergé sur le site de l'auteur — pas construit ici. Ce n'est pas non
+  # plus construit "from source" en CI depuis ce tarball : plus personne
+  # d'autre que l'auteur ne peut télécharger le tarball source d'un dépôt
+  # privé (voir la conversation qui a introduit ce commentaire, dans le
+  # dépôt amstrad_cpc).
+  url "https://theorangenerd.ovh/cpc/bytebox-2.1.0-macos-arm64.tar.gz"
+  version "2.1.0"
+  sha256 "921d08f6c4b2c63574aaf30061fc3243ed1f28d4bb6119e016368812ab9f1bd6"
   license "MIT"
 
-  depends_on "pkg-config" => :build
-  depends_on "rust" => :build
   depends_on "sdl2"
 
   def install
-    # --profile dist : profil réservé aux binaires distribués (LTO, un seul
-    # codegen-unit), voir le Cargo.toml racine.
-    system "cargo", "build", "--profile", "dist", "--locked", "-p", "bytebox"
-    bin.install "target/dist/bytebox"
-
-    # Bundle .app, en plus du binaire nu dans bin/ : épingler ce dernier
-    # tel quel à la barre des tâches macOS ne se comporte pas comme une
-    # vraie appli (icône générique du Terminal, et le lancement passe par
-    # lui) — macOS n'associe une icône et un comportement d'appli GUI qu'à
-    # un vrai bundle .app, jamais à un exécutable Unix nu. Construit
-    # nous-mêmes plutôt que via un Cask (qui suppose distribuer un binaire
-    # pré-compilé, donc signé/notarié pour passer Gatekeeper) : celui-ci
-    # est compilé localement par `brew`, jamais marqué "quarantaine" par
-    # macOS (contrairement à un artefact téléchargé) — pas de notarization
-    # à gérer.
-    if OS.mac?
-      app = prefix/"ByteBox.app"
-      (app/"Contents/MacOS").mkpath
-      (app/"Contents/Resources").mkpath
-      ln_s bin/"bytebox", app/"Contents/MacOS/bytebox"
-      cp "assets/bytebox_icon.icns", app/"Contents/Resources/bytebox.icns"
-      (app/"Contents/Info.plist").write <<~XML
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-          <key>CFBundleName</key><string>ByteBox</string>
-          <key>CFBundleDisplayName</key><string>ByteBox</string>
-          <key>CFBundleIdentifier</key><string>net.bauw.bytebox</string>
-          <key>CFBundleVersion</key><string>#{version}</string>
-          <key>CFBundleShortVersionString</key><string>#{version}</string>
-          <key>CFBundleExecutable</key><string>bytebox</string>
-          <key>CFBundleIconFile</key><string>bytebox.icns</string>
-          <key>CFBundlePackageType</key><string>APPL</string>
-          <key>LSMinimumSystemVersion</key><string>11.0</string>
-        </dict>
-        </plist>
-      XML
-    end
+    bin.install "bytebox"
+    prefix.install "ByteBox.app" if OS.mac?
   end
 
   def caveats
@@ -60,6 +31,14 @@ class Bytebox < Formula
       bare binary in #{bin}. To add it to Applications:
 
         ln -s "#{prefix}/ByteBox.app" /Applications/ByteBox.app
+
+      This binary is downloaded pre-built (from theorangenerd.ovh) rather
+      than compiled here, and is unsigned. `brew` fetches it with curl, not
+      Safari, so it is normally never quarantined — but if macOS still
+      refuses to launch it ("cannot be opened because the developer cannot
+      be verified"), clear the flag by hand:
+
+        xattr -d com.apple.quarantine "#{prefix}/ByteBox.app"
     EOS
   end
 
