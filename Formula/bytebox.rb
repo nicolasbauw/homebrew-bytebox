@@ -36,7 +36,8 @@ class Bytebox < Formula
       than compiled here, and is unsigned. `brew` fetches it with curl, not
       Safari, so it is normally never quarantined — but if macOS still
       refuses to launch it ("cannot be opened because the developer cannot
-      be verified"), clear the flag by hand:
+      be verified", or on newer macOS "is damaged and can't be opened" for
+      the very same reason), clear the flag by hand:
 
         xattr -d com.apple.quarantine "#{prefix}/ByteBox.app"
     EOS
