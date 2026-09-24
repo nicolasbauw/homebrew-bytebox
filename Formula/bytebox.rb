@@ -12,7 +12,7 @@ class Bytebox < Formula
   # dépôt amstrad_cpc).
   url "https://theorangenerd.ovh/cpc/bytebox-2.1.0-macos-arm64.tar.gz"
   version "2.1.0"
-  sha256 "921d08f6c4b2c63574aaf30061fc3243ed1f28d4bb6119e016368812ab9f1bd6"
+  sha256 "355a3e90224d46cf6fbfa330509d6629f0c4d57626d2fee1b91979c76ee81bb1"
   license "MIT"
 
   depends_on "sdl2"
@@ -33,7 +33,8 @@ class Bytebox < Formula
         ln -s "#{prefix}/ByteBox.app" /Applications/ByteBox.app
 
       This binary is downloaded pre-built (from theorangenerd.ovh) rather
-      than compiled here, and is unsigned. `brew` fetches it with curl, not
+      than compiled here, and is only ad-hoc signed (no Apple Developer
+      account, so no notarization). `brew` fetches it with curl, not
       Safari, so it is normally never quarantined — but if macOS still
       refuses to launch it ("cannot be opened because the developer cannot
       be verified", or on newer macOS "is damaged and can't be opened" for
